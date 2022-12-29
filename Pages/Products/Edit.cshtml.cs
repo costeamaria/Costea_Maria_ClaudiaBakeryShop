@@ -9,9 +9,12 @@ using Microsoft.EntityFrameworkCore;
 using Costea_Maria_ClaudiaBakeryShop.Data;
 using Costea_Maria_ClaudiaBakeryShop.Models;
 using System.Security.Policy;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
 
 namespace Costea_Maria_ClaudiaBakeryShop.Pages.Products
 {
+    [Authorize(Roles = "Admin")]
     public class EditModel : ProductCategoriesPageModel
     {
         private readonly Costea_Maria_ClaudiaBakeryShop.Data.Costea_Maria_ClaudiaBakeryShopContext _context;

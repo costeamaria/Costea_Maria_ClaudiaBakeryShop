@@ -4,8 +4,21 @@ using Costea_Maria_ClaudiaBakeryShop.Data;
 using Microsoft.AspNetCore.Identity;
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminPolicy", policy =>
+   policy.RequireRole("Admin"));
+});
+
+
 // Add services to the container.
-builder.Services.AddRazorPages();
+builder.Services.AddRazorPages(options =>
+{
+    options.Conventions.AuthorizeFolder("/Products");
+    options.Conventions.AllowAnonymousToPage("/Products/Index");
+    options.Conventions.AllowAnonymousToPage("/Products/Details");
+    options.Conventions.AuthorizeFolder("/Members", "AdminPolicy");
+});
 builder.Services.AddDbContext<Costea_Maria_ClaudiaBakeryShopContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Costea_Maria_ClaudiaBakeryShopContext") ?? throw new InvalidOperationException("Connection string 'Costea_Maria_ClaudiaBakeryShopContext' not found.")));
 
@@ -14,7 +27,7 @@ builder.Services.AddDbContext<LibraryIdentityContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("Costea_Maria_ClaudiaBakeryShopContext") ?? throw new InvalidOperationException("Connection string 'Costea_Maria_ClaudiaBakeryShopContext' not found.")));
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 options.SignIn.RequireConfirmedAccount = true)
-    .AddRoles<IdentityRole>()
+ .AddRoles<IdentityRole>()
  .AddEntityFrameworkStores<LibraryIdentityContext>();
 var app = builder.Build();
 
