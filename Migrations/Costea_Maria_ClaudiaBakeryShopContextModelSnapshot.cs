@@ -39,6 +39,32 @@ namespace Costea_Maria_ClaudiaBakeryShop.Migrations
                     b.ToTable("Adress");
                 });
 
+            modelBuilder.Entity("Costea_Maria_ClaudiaBakeryShop.Models.Cart", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
+
+                    b.Property<int?>("MemberID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ProductID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("MemberID");
+
+                    b.HasIndex("ProductID");
+
+                    b.ToTable("Cart");
+                });
+
             modelBuilder.Entity("Costea_Maria_ClaudiaBakeryShop.Models.Category", b =>
                 {
                     b.Property<int>("ID")
@@ -71,6 +97,35 @@ namespace Costea_Maria_ClaudiaBakeryShop.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("City");
+                });
+
+            modelBuilder.Entity("Costea_Maria_ClaudiaBakeryShop.Models.Member", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
+
+                    b.Property<string>("Adress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Member");
                 });
 
             modelBuilder.Entity("Costea_Maria_ClaudiaBakeryShop.Models.Product", b =>
@@ -151,6 +206,21 @@ namespace Costea_Maria_ClaudiaBakeryShop.Migrations
                     b.ToTable("Quantity");
                 });
 
+            modelBuilder.Entity("Costea_Maria_ClaudiaBakeryShop.Models.Cart", b =>
+                {
+                    b.HasOne("Costea_Maria_ClaudiaBakeryShop.Models.Member", "Member")
+                        .WithMany("Carts")
+                        .HasForeignKey("MemberID");
+
+                    b.HasOne("Costea_Maria_ClaudiaBakeryShop.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductID");
+
+                    b.Navigation("Member");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Costea_Maria_ClaudiaBakeryShop.Models.Product", b =>
                 {
                     b.HasOne("Costea_Maria_ClaudiaBakeryShop.Models.Adress", "Adress")
@@ -204,6 +274,11 @@ namespace Costea_Maria_ClaudiaBakeryShop.Migrations
             modelBuilder.Entity("Costea_Maria_ClaudiaBakeryShop.Models.City", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("Costea_Maria_ClaudiaBakeryShop.Models.Member", b =>
+                {
+                    b.Navigation("Carts");
                 });
 
             modelBuilder.Entity("Costea_Maria_ClaudiaBakeryShop.Models.Product", b =>
