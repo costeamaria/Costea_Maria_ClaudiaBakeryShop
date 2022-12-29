@@ -31,6 +31,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Product[0].City.CityName)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Product[0].ProductCategories)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -54,6 +57,14 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.City.CityName)
+                </td>
+                <td>
+                    @{
+                        foreach (var category in item.ProductCategories)
+                        {
+                            @category.Category.ID @: @category.Category.CategoryName <br />
+                        }
+                    }
                 </td>
             <td>
                 <a asp-page="./Edit" asp-route-id="@item.ID">Edit</a> |

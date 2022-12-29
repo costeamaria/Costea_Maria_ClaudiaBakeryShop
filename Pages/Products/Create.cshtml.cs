@@ -8,10 +8,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Costea_Maria_ClaudiaBakeryShop.Data;
 using Costea_Maria_ClaudiaBakeryShop.Models;
 using System.Security.Policy;
+using Microsoft.EntityFrameworkCore;
+using System.Runtime.InteropServices;
 
 namespace Costea_Maria_ClaudiaBakeryShop.Pages.Products
 {
-    public class CreateModel : PageModel
+    public class CreateModel : ProductCategoriesPageModel
     {
         private readonly Costea_Maria_ClaudiaBakeryShop.Data.Costea_Maria_ClaudiaBakeryShopContext _context;
 
@@ -25,26 +27,43 @@ namespace Costea_Maria_ClaudiaBakeryShop.Pages.Products
             ViewData["AdressID"] = new SelectList(_context.Set<Adress>(), "ID", "AdressName");
             ViewData["QuantityID"] = new SelectList(_context.Set<Quantity>(), "ID", "QuantityName");
             ViewData["CityID"] = new SelectList(_context.Set<City>(), "ID", "CityName");
+            var product = new Product();
+            product.ProductCategories = new List<ProductCategory>();
+            PopulateAssignedCategoryData(_context, product);
 
             return Page();
         }
 
         [BindProperty]
         public Product Product { get; set; }
-        
+
 
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(string[] selectedCategories)
         {
-          if (!ModelState.IsValid)
+            var newProduct = new Product();
+            if (selectedCategories != null)
             {
-                return Page();
+                newProduct.ProductCategories = new List<ProductCategory>();
+                foreach (var cat in selectedCategories)
+                {
+                    var catToAdd = new ProductCategory
+                    {
+                        CategoryID = int.Parse(cat)
+                    };
+                    newProduct.ProductCategories.Add(catToAdd);
+                }
             }
-
-            _context.Product.Add(Product);
-            await _context.SaveChangesAsync();
-
-            return RedirectToPage("./Index");
+            
+                Product.ProductCategories = newProduct.ProductCategories;
+                _context.Product.Add(Product);
+                await _context.SaveChangesAsync();
+                return RedirectToPage("./Index");
+            
+            PopulateAssignedCategoryData(_context, newProduct);
+            return Page();
         }
     }
+
 }
+

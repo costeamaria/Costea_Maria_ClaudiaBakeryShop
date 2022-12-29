@@ -21,5 +21,7 @@ namespace Costea_Maria_ClaudiaBakeryShop.Data
         public DbSet<Costea_Maria_ClaudiaBakeryShop.Models.Quantity> Quantity { get; set; }
 
         public DbSet<Costea_Maria_ClaudiaBakeryShop.Models.City> City { get; set; }
+
+        public DbSet<Costea_Maria_ClaudiaBakeryShop.Models.Category> Category { get; set; }
     }
 }

@@ -12,7 +12,7 @@ using System.Security.Policy;
 
 namespace Costea_Maria_ClaudiaBakeryShop.Pages.Products
 {
-    public class EditModel : PageModel
+    public class EditModel : ProductCategoriesPageModel
     {
         private readonly Costea_Maria_ClaudiaBakeryShop.Data.Costea_Maria_ClaudiaBakeryShopContext _context;
 
@@ -31,11 +31,18 @@ namespace Costea_Maria_ClaudiaBakeryShop.Pages.Products
                 return NotFound();
             }
 
+            Product = await _context.Product
+                 .Include(p => p.Adress)
+                 .Include(p => p.ProductCategories).ThenInclude(p => p.Category)
+                 .AsNoTracking()
+                 .FirstOrDefaultAsync(m => m.ID == id);
+
             var product =  await _context.Product.FirstOrDefaultAsync(m => m.ID == id);
             if (product == null)
             {
                 return NotFound();
             }
+            PopulateAssignedCategoryData(_context, Product);
             Product = product;
             ViewData["AdressID"] = new SelectList(_context.Set<Adress>(), "ID", "AdressName");
             ViewData["QuantityID"] = new SelectList(_context.Set<Quantity>(), "ID", "QuantityName");
@@ -46,37 +53,38 @@ namespace Costea_Maria_ClaudiaBakeryShop.Pages.Products
 
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see https://aka.ms/RazorPagesCRUD.
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(int? id, string[] selectedCategories)
         {
-            if (!ModelState.IsValid)
+            if (id == null)
             {
-                return Page();
+                return NotFound();
             }
-
-            _context.Attach(Product).State = EntityState.Modified;
-
-            try
+            
+            var productToUpdate = await _context.Product
+            .Include(i => i.Adress)
+            .Include(i => i.Quantity)
+            .Include(i => i.City)
+            .Include(i => i.ProductCategories)
+            .ThenInclude(i => i.Category)
+            .FirstOrDefaultAsync(s => s.ID == id);
+            if (productToUpdate == null)
             {
+                return NotFound();
+            }
+           
+           if (await TryUpdateModelAsync<Product>(productToUpdate, "Product",
+            i => i.Name, i => i.Price,
+            i => i.ExpireDate, i => i.AdressID, i => i.QuantityID, i => i.CityID))
+            {
+                UpdateProductCategories(_context, selectedCategories, productToUpdate);
                 await _context.SaveChangesAsync();
+                return RedirectToPage("./Index");
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProductExists(Product.ID))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return RedirectToPage("./Index");
-        }
-
-        private bool ProductExists(int id)
-        {
-          return _context.Product.Any(e => e.ID == id);
+            //Apelam UpdateBookCategories pentru a aplica informatiile din checkboxuri la entitatea Books care
+            //este editata
+            UpdateProductCategories(_context, selectedCategories, productToUpdate);
+            PopulateAssignedCategoryData(_context, productToUpdate);
+            return Page();
         }
     }
 }

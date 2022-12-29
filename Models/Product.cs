@@ -23,5 +23,6 @@ namespace Costea_Maria_ClaudiaBakeryShop.Models
         public Quantity? Quantity { get; set; }
         public int? CityID { get; set; }
         public City? City { get; set; }
+        public ICollection<ProductCategory>? ProductCategories { get; set; }
     }
 }
