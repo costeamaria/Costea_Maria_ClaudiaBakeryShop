@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Costea_Maria_ClaudiaBakeryShop.Data;
 using Costea_Maria_ClaudiaBakeryShop.Models;
+using Costea_Maria_ClaudiaBakeryShop.Models.ViewModels;
+using System.Security.Policy;
 
 namespace Costea_Maria_ClaudiaBakeryShop.Pages.Adresses
 {
@@ -21,11 +23,23 @@ namespace Costea_Maria_ClaudiaBakeryShop.Pages.Adresses
 
         public IList<Adress> Adress { get;set; } = default!;
 
-        public async Task OnGetAsync()
+        public AdressIndexData AdressData { get; set; }
+        public int AdressID { get; set; }
+        public int ProductID { get; set; }
+
+        public async Task OnGetAsync(int? id, int? productID)
         {
-            if (_context.Adress != null)
+            AdressData = new AdressIndexData();
+            AdressData.Adresses = await _context.Adress
+            .Include(i => i.Products)
+            .OrderBy(i => i.AdressName)
+            .ToListAsync();
+            if (id != null)
             {
-                Adress = await _context.Adress.ToListAsync();
+                AdressID = id.Value;
+                Adress adress = AdressData.Adresses
+                .Where(i => i.ID == id.Value).Single();
+                AdressData.Products = adress.Products;
             }
         }
     }
